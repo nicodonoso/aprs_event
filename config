@@ -1,0 +1,14 @@
+[mail]
+username = severini.simone@gmail.com
+password = dlyexyhlbediabqq
+
+[aprs]
+aprs_link = https://aprs.fi/
+gmap_link = http://www.google.com/maps/place/
+
+[keywords]
+emergency_trigger = emg
+
+[email_recipients]
+to = severini.simone@icloud.com
+sms = 0041768050877@esms.ch
