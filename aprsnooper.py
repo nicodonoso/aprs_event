@@ -10,6 +10,7 @@ import signal
 import sqlite3
 import threading
 import time
+import yagmail
 
 import modules
 
@@ -29,7 +30,7 @@ class APRSnooper(object):
 
     def __init__(self, callsign, server, port, db_string='', aprs_filter='',
                  reverse_geo=False):
-        """Initializes aprsnooper 
+        """Initializes aprsnooper
 
         Args:
             callsign: Callsign to log in with.
@@ -69,7 +70,7 @@ class APRSnooper(object):
         self._packet_count += 1
         if self._packet_count % 1000 == 0:
             logging.info('received %d packets in %d sec' % (
-                self._packet_count, int(time.time()-self._consume_start)))
+                self._packet_count, int(time.time() - self._consume_start)))
 
         if self._db:
             with self._db:
@@ -78,7 +79,22 @@ class APRSnooper(object):
                 cur.execute("INSERT INTO aprs(raw) VALUES (?);", [packet['raw']])
             return
 
-        #logging.info(packet)
+        # Part of the function that looks for a string int the beacon and trigger an event
+        if packet.get('latitude') is not None:
+            if "HB9HCM" in packet['from']:
+                if "emg" in packet['comment']:
+                    logging.info('I found an emergency call at this'
+                                 ' location LAT: %s and LON: %s' % (packet['latitude'], packet['longitude']))
+
+                    contents = ["You have received this mail because"
+                                " Simone is calling for emergency. \nClick here to see where he is: http://www.google."
+                                "com/maps/place/" + str(packet['latitude']) + "," + str(packet['longitude']) + " "
+                                ". \n\n You can track him here too: https://aprs.fi/" + packet['from']]
+
+                    subject = "Emergency call from Simone"
+                    yagmail.SMTP('severini.simone@gmail.com', 'dlyexyhlbediabqq').send('severini.simone@icloud.com',
+                                                                                       subject, contents)
+
         module = self._module_factory.get(packet)
         if not module:
             logging.debug('no module found for packet: %s', packet)
@@ -147,19 +163,19 @@ if __name__ == '__main__':
         formatters={
             'f': {
                 'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                },
             },
+        },
         handlers={
             'h': {
                 'class': 'logging.StreamHandler',
                 'formatter': 'f',
                 'level': logging.INFO,
-                },
             },
+        },
         root={
             'handlers': ['h'],
             'level': logging.DEBUG,
-            },
+        },
     )
     dictConfig(LOGGING_CONFIG)
 
@@ -167,10 +183,10 @@ if __name__ == '__main__':
     p.add_argument('--callsign', '-c', default='anon',
                    metavar='<callsign>',
                    help='Callsign to log in with')
-    p.add_argument('--server', '-s', default='rotate.aprs.net',
+    p.add_argument('--server', '-s', default='euro.aprs2.net',
                    metavar='<server>',
-                   help='APRS IS server address (default: rotate.aprs.net)')
-    p.add_argument('--aprs_filter', '-f', default='',
+                   help='APRS IS server address (default: euro.aprs2.net)')
+    p.add_argument('--aprs_filter', '-f', default='p/HB',
                    metavar='<aprs_filter>',
                    help='Filter string to use (if server port supports it).')
     p.add_argument('--db', '-d', default='',
@@ -181,7 +197,7 @@ if __name__ == '__main__':
                    help='Do reverse geo lookups (Default: False)')
     args = p.parse_args()
 
-    port = 10152     # this is the full feed port
+    port = 10152  # this is the full feed port
     if args.aprs_filter:
         port = 14580  # this is the default port for user defined filtering
     else:
@@ -192,11 +208,13 @@ if __name__ == '__main__':
                    aprs_filter=args.aprs_filter, reverse_geo=args.reverse_geo)
     t.Start()
 
+
     # Set up signal handler to abort with CTRL-C.
     def signal_handler(unused_signal, unused_frame):
         """Signal handler that aborts all threads/timers nicely."""
         logging.info('Signal handler called. Aborting.')
         t.Stop()
+
 
     signal.signal(signal.SIGINT, signal_handler)
 
