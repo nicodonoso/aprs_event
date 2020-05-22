@@ -5,12 +5,12 @@
 import aprslib
 import argparse
 import logging
-import pprint
 import signal
 import sqlite3
 import threading
 import time
 import yagmail
+import readconfig
 
 import modules
 
@@ -80,19 +80,23 @@ class APRSnooper(object):
             return
 
         # Part of the function that looks for a string int the beacon and trigger an event
+        print(config_dict)
+        recipients = config_dict['mail']['to']
+        email_list = recipients.split (",")
+        print(email_list)
+
         if packet.get('latitude') is not None:
-            if "HB9HCM" in packet['from']:
-                if "emg" in packet['comment']:
+            if (config_dict['filter']['from_call']) or (config_dict['filter']['sec_call']) in packet['from']:
+                if (config_dict['keywords']['trigger']) in packet['comment']:
                     logging.info('I found an emergency call at this'
                                  ' location LAT: %s and LON: %s' % (packet['latitude'], packet['longitude']))
 
-                    contents = ["You have received this mail because"
-                                " Simone is calling for emergency. \nClick here to see where he is: http://www.google."
-                                "com/maps/place/" + str(packet['latitude']) + "," + str(packet['longitude']) + " "
-                                ". \n\n You can track him here too: https://aprs.fi/" + packet['from']]
+                    contents = [config_dict['mail']['body_it'] + " \n\n Google map: " +
+                                config_dict['aprs']['gmap_link'] + str(packet['latitude']) + "," + str(packet['longitude']) +
+                                "\n\n APRS tracking: " + config_dict['aprs']['aprs_link'] + packet['from']]
 
-                    subject = "Emergency call from Simone"
-                    yagmail.SMTP('severini.simone@gmail.com', 'dlyexyhlbediabqq').send('severini.simone@icloud.com',
+                    subject = config_dict['mail']['subject_it']
+                    yagmail.SMTP(config_dict['mail']['username'], config_dict['mail']['app_password']).send(email_list,
                                                                                        subject, contents)
 
         module = self._module_factory.get(packet)
@@ -179,7 +183,8 @@ if __name__ == '__main__':
     )
     dictConfig(LOGGING_CONFIG)
 
-    p = argparse.ArgumentParser(description='APRSnooper')
+    p = argparse.ArgumentParser(description='APRS Trigger Events')
+
     p.add_argument('--callsign', '-c', default='anon',
                    metavar='<callsign>',
                    help='Callsign to log in with')
@@ -197,6 +202,7 @@ if __name__ == '__main__':
                    help='Do reverse geo lookups (Default: False)')
     args = p.parse_args()
 
+    # Warning message if filters are not in place (I set it by default)
     port = 10152  # this is the full feed port
     if args.aprs_filter:
         port = 14580  # this is the default port for user defined filtering
@@ -204,12 +210,15 @@ if __name__ == '__main__':
         logging.warn('Careful: Not setting a filter may result in missed '
                      'messages.')
 
+    config_dict = readconfig.get_config_section()
+
     t = APRSnooper(args.callsign, args.server, port, args.db,
                    aprs_filter=args.aprs_filter, reverse_geo=args.reverse_geo)
+
     t.Start()
 
-
     # Set up signal handler to abort with CTRL-C.
+
     def signal_handler(unused_signal, unused_frame):
         """Signal handler that aborts all threads/timers nicely."""
         logging.info('Signal handler called. Aborting.')
