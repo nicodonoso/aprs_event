@@ -81,7 +81,7 @@ class APRSnooper(object):
 
         # Part of the function that looks for a string int the beacon and trigger an event
         recipients = config_dict['mail']['to']
-        email_list = recipients.split (",")
+        email_list = recipients.split(",")
 
         if packet.get('latitude') is not None:
             if (config_dict['filter']['from_call']) or (config_dict['filter']['sec_call']) in packet['from']:
