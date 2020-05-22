@@ -186,7 +186,7 @@ if __name__ == '__main__':
     p.add_argument('--server', '-s', default='euro.aprs2.net',
                    metavar='<server>',
                    help='APRS IS server address (default: euro.aprs2.net)')
-    p.add_argument('--aprs_filter', '-f', default='p/HB',
+    p.add_argument('--aprs_filter', '-f', default='b/HB9HCM*/IZ1VCX*',
                    metavar='<aprs_filter>',
                    help='Filter string to use (if server port supports it).')
     p.add_argument('--db', '-d', default='',

@@ -12,3 +12,7 @@ emergency_trigger = emg
 [email_recipients]
 to = severini.simone@icloud.com
 sms = 0041768050877@esms.ch
+
+[filter]
+call_to_monitor = HB9HCM*, IZ1VCX*
+
