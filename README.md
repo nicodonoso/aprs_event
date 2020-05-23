@@ -40,7 +40,7 @@ Example 1: Filter for messages from Swiss stations
     
 Example 1b: Filter for messages related to a specific callsign
 
-    ./aprsnooper.py -f "b/HB9HCM*"
+    ./aprsnooper.py -f "b/HB9HCM*/IZ1VCX*"
 
 Example 2: Save the full feed to a sqlite DB.
 
