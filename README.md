@@ -3,8 +3,7 @@ APRS Trigger Event
 
 ARPS message receiver and processor.
 
-APRSte is based on APRSnooper which connects to aprs-is.net servers to retrieve the latest APRS packets
-worldwide (optionally based on a filter you may specify) and processes them.
+APRSte is based on APRSnooper https://github.com/finfinack/aprsnooper which connects to aprs-is.net servers to retrieve the latest APRS packetsworldwide (optionally based on a filter you may specify) and processes them.
 
 Processing at the moment is basically printing them in a somewhat nice format
 or saving them away in a sqlite DB. This may change at a later point.
