@@ -9,7 +9,9 @@ worldwide (optionally based on a filter you may specify) and processes them.
 Processing at the moment is basically printing them in a somewhat nice format
 or saving them away in a sqlite DB. This may change at a later point.
 
-In order to trigger an emergency email with coordinates of the caller, APRSte is looking for a configurable keyword in the beacon message
+In order to trigger an emergency email with coordinates of the caller, APRSte is looking for a configurable keyword in the beacon message.
+
+It is best to set server side filter in order to minimize the parsing and computation effort. I suggest to set filters on own callsign as per Example 1B.
 
 Note: This project is primarily aplayground to explore APRS messages.
 
@@ -35,6 +37,10 @@ usage: aprsnooper.py [-h] [--callsign <callsign>] [--server <server>]
 Example 1: Filter for messages from Swiss stations
 
     ./aprsnooper.py -f "p/HB3/HB9"
+    
+Example 1b: Filter for messages related to a specific callsign
+
+    ./aprsnooper.py -f "b/HB9HCM*"
 
 Example 2: Save the full feed to a sqlite DB.
 
