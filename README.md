@@ -1,28 +1,32 @@
-APRSnooper
+APRS Trigger Event
 ==========
 
 ARPS message receiver and processor.
 
-APRSnooper connects to aprs-is.net servers to retrieve the latest APRS packets
+APRSte is based on APRSnooper which connects to aprs-is.net servers to retrieve the latest APRS packets
 worldwide (optionally based on a filter you may specify) and processes them.
 
 Processing at the moment is basically printing them in a somewhat nice format
 or saving them away in a sqlite DB. This may change at a later point.
 
-Note: This project is primarily a playground to explore APRS messages.
+In order to trigger an emergency email with coordinates of the caller, APRSte is looking for a configurable keyword in the beacon message
+
+Note: This project is primarily aplayground to explore APRS messages.
+
+
 
 Requirements
 ------------
 
 ```bash
-pip install aprslib geopy cachepy
+pip install aprslib geopy cachepy yagmail
 ```
 
 Usage
 -----
 
 ```bash
-./aprsnooper.py --help
+./aprste.py --help
 usage: aprsnooper.py [-h] [--callsign <callsign>] [--server <server>]
                      [--aprs_filter <aprs_filter>] [--db <db>]
                      [--reverse_geo reverse_geo>]
